@@ -44,7 +44,7 @@ namespace RefreshToken.Controllers
         [HttpGet, Authorize]
         public ActionResult<string> Hallo()
         {
-            return Ok("Hallo! You're authorized");
+            return Ok("Hallo! You're authorized!");
         }
     }
 }
