@@ -7,16 +7,23 @@ using System.Security.Cryptography;
 using static System.Net.Mime.MediaTypeNames;
 using RefreshToken.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace RefreshToken.Services.AuthServices
 {
     public class AuthServices : IAuthServices
     {
         private readonly DataContext _context;
+        private readonly IConfiguration _configuration;
 
-        public AuthServices(DataContext context)
+        public AuthServices(DataContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         public async Task<ResponseApi> Login(UserDto request)
@@ -34,7 +41,8 @@ namespace RefreshToken.Services.AuthServices
                 return new ResponseApi { Message = "Wrong Password" };
             }
 
-            return new ResponseApi { Success = true };
+            string token = GenerateToken(user);
+            return new ResponseApi { Success = true, Token = token };
         }
 
         public async Task<User> RegisterUser(UserDto request)
@@ -54,6 +62,28 @@ namespace RefreshToken.Services.AuthServices
             return user;
         }
 
+        private string GenerateToken (User user) 
+        {
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.IdUser.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName)
+            };
+
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:TokenSecretKey").Value));
+            var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            var jwtToken = new JwtSecurityToken
+                            (
+                                claims: claims, 
+                                expires: DateTime.Now.AddDays(1), 
+                                signingCredentials: credential
+                            );
+
+            var token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
+
+            return token;
+
+        }
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
             //using (var hmac = new HMACSHA512(new byte[32]))
