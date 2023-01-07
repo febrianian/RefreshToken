@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RefreshToken.Dto;
 using RefreshToken.Model;
+using RefreshToken.Services.AuthServices;
 
 namespace RefreshToken.Controllers
 {
@@ -9,12 +10,19 @@ namespace RefreshToken.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly IAuthServices _authServices;
+
+        public AuthController(IAuthServices authServices)
+        {
+            _authServices = authServices;
+        }
+
         //registering for user
         [HttpPost]
         public async Task<ActionResult<User>> Register(UserDto request)
         {
-            var user = new User { UserName = request.UserName };
-            return Ok(user);
+            var response = await _authServices.RegisterUser(request);
+            return Ok(response);
         }
     }
 }
