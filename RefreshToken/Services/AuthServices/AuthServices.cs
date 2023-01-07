@@ -5,11 +5,19 @@ using System.Diagnostics.Metrics;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using static System.Net.Mime.MediaTypeNames;
+using RefreshToken.Data;
 
 namespace RefreshToken.Services.AuthServices
 {
     public class AuthServices : IAuthServices
     {
+        private readonly DataContext _context;
+
+        public AuthServices(DataContext context)
+        {
+            _context = context;
+
+        }
         public async Task<User> RegisterUser(UserDto request)
         {
             CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
@@ -20,7 +28,10 @@ namespace RefreshToken.Services.AuthServices
                 PasswordHash = passwordHash, 
                 PasswordSalt = passwordSalt 
             };
-            
+
+            _context.User.Add(user);
+            await _context.SaveChangesAsync();
+
             return user;
         }
 
@@ -51,9 +62,15 @@ namespace RefreshToken.Services.AuthServices
 
                 passwordSalt = hmac.Key;
                 passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            }
+        }
 
-
-
+        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        {
+            using (var hmac = new HMACSHA512(passwordSalt))
+            {
+                var computeHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                return computeHash.SequenceEqual(passwordHash);
             }
         }
     }
