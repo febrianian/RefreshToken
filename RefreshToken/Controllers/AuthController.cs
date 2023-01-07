@@ -24,5 +24,20 @@ namespace RefreshToken.Controllers
             var response = await _authServices.RegisterUser(request);
             return Ok(response);
         }
+
+        [HttpPost("Login")]
+        public async Task<ActionResult<User>> Login(UserDto request)
+        {
+            var response = await _authServices.Login(request);
+
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest(response.Message);
+            }
+        }
     }
 }

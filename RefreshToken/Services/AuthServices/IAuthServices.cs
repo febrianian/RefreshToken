@@ -6,5 +6,6 @@ namespace RefreshToken.Services.AuthServices
     public interface IAuthServices
     {
         Task<User> RegisterUser(UserDto request);
+        Task<ResponseApi> Login(UserDto request);
     }
 }

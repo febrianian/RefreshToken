@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using static System.Net.Mime.MediaTypeNames;
 using RefreshToken.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace RefreshToken.Services.AuthServices
 {
@@ -16,8 +17,26 @@ namespace RefreshToken.Services.AuthServices
         public AuthServices(DataContext context)
         {
             _context = context;
-
         }
+
+        public async Task<ResponseApi> Login(UserDto request)
+        {
+            var user = await _context.User.FirstOrDefaultAsync(u => u.UserName == request.UserName);
+
+            if (user == null)
+            {
+                return new ResponseApi { Message = "User Not Found" };
+            }
+
+            //check if password is incorrect
+            if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+            {
+                return new ResponseApi { Message = "Wrong Password" };
+            }
+
+            return new ResponseApi { Success = true };
+        }
+
         public async Task<User> RegisterUser(UserDto request)
         {
             CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
