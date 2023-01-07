@@ -46,7 +46,7 @@ namespace RefreshToken.Services.AuthServices
 
             string token = GenerateToken(user);
             var refreshToken = GenerateRefreshToken();
-            SetRefreshToken(refreshToken, user);
+            await SetRefreshToken(refreshToken, user);
 
             return new ResponseApi 
             { 
