@@ -1,7 +1,10 @@
-﻿namespace RefreshToken.Model
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RefreshToken.Model
 {
     public class User
     {
+        [Key]
         public int IdUser { get; set; }
         public string UserName { get; set; }
         public byte[] PasswordHash { get; set; } = new byte[32];
