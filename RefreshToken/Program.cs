@@ -11,19 +11,14 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-var sqlstring = builder.Configuration.GetConnectionString("DefaultConnection");
-
-builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(sqlstring));
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options => 
-{ 
+builder.Services.AddSwaggerGen(options =>
+{
     options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
     {
-        Description = "Standart Authorization header using the Bearer Scheme (\"Bearer  {token} \")",
+        Description = "Standard Authorization header using the Bearer scheme (\"Bearer {token} \")",
         In = ParameterLocation.Header,
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey
@@ -33,6 +28,9 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddScoped<IAuthServices, AuthServices>();
+var sqlstring = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(sqlstring));
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -40,12 +38,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8
-                               .GetBytes(builder.Configuration.GetSection("AppSettings:TokenSecretKey").Value)),
+                .GetBytes(builder.Configuration.GetSection("AppSettings:TokenSecretKey").Value)),
             ValidateIssuer = false,
             ValidateAudience = false
         };
     });
-
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();

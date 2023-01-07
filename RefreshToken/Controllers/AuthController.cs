@@ -56,7 +56,7 @@ namespace RefreshToken.Controllers
             }
         }
 
-        [HttpGet, Authorize]
+        [HttpGet, Authorize (Roles = "Admin, BasicUser")]
         public ActionResult<string> Hallo()
         {
             return Ok("Hallo! You're authorized!");
