@@ -20,11 +20,13 @@ namespace RefreshToken.Services.AuthServices
     {
         private readonly DataContext _context;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _http;
 
-        public AuthServices(DataContext context, IConfiguration configuration)
+        public AuthServices(DataContext context,IHttpContextAccessor http,  IConfiguration configuration)
         {
             _context = context;
             _configuration = configuration;
+            _http = http;
         }
 
         public async Task<ResponseApi> Login(UserDto request)
@@ -44,6 +46,7 @@ namespace RefreshToken.Services.AuthServices
 
             string token = GenerateToken(user);
             var refreshToken = GenerateRefreshToken();
+            SetRefreshToken(refreshToken, user);
 
             return new ResponseApi 
             { 
@@ -142,6 +145,23 @@ namespace RefreshToken.Services.AuthServices
             };
 
             return refreshToken;
+        }
+
+        private async void SetRefreshToken(AuthRefreshToken refreshToken, User user)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = refreshToken.Expires
+            };
+
+            _http?.HttpContext?.Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
+
+            user.RefreshToken = refreshToken.Token;
+            user.TokenCreated = refreshToken.Created;
+            user.TokenExpires = refreshToken.Expires;
+
+            await _context.SaveChangesAsync();
         }
     }
 }
