@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RefreshToken.Dto;
 using RefreshToken.Model;
@@ -38,6 +39,12 @@ namespace RefreshToken.Controllers
             {
                 return BadRequest(response.Message);
             }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult<string> Hallo()
+        {
+            return Ok("Hallo! You're authorized");
         }
     }
 }
