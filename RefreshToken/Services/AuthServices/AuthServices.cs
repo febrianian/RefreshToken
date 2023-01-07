@@ -12,6 +12,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Mvc;
 
 namespace RefreshToken.Services.AuthServices
 {
@@ -42,7 +43,15 @@ namespace RefreshToken.Services.AuthServices
             }
 
             string token = GenerateToken(user);
-            return new ResponseApi { Success = true, Token = token };
+            var refreshToken = GenerateRefreshToken();
+
+            return new ResponseApi 
+            { 
+                Success = true, 
+                Token = token,
+                RefreshToken = refreshToken.Token,
+                TokenExpires = refreshToken.Expires
+            };
         }
 
         public async Task<User> RegisterUser(UserDto request)
@@ -121,6 +130,18 @@ namespace RefreshToken.Services.AuthServices
                 var computeHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
                 return computeHash.SequenceEqual(passwordHash);
             }
+        }
+
+        private AuthRefreshToken GenerateRefreshToken()
+        {
+            var refreshToken = new AuthRefreshToken
+            {
+                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                Expires = DateTime.Now.AddDays(7),
+                Created = DateTime.Now
+            };
+
+            return refreshToken;
         }
     }
 }
