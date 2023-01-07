@@ -57,6 +57,33 @@ namespace RefreshToken.Services.AuthServices
             };
         }
 
+        public async Task<ResponseApi> AuthRefreshToken()
+        {
+            var refreshToken = _http?.HttpContext?.Request.Cookies["refreshToken"];
+            var user = await _context.User.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+
+            if (user == null)
+            {
+                return new ResponseApi { Message = "Invalid Refresh Token." };
+            }
+            else if (user.TokenExpires < DateTime.Now)
+            {
+                return new ResponseApi { Message = "Token Expired." };
+            }
+
+            string token = GenerateToken(user);
+            var newRefreshToken = GenerateRefreshToken();
+            await SetRefreshToken(newRefreshToken, user);
+
+            return new ResponseApi
+            {
+                Success = true,
+                Token = token,
+                RefreshToken = newRefreshToken.Token,
+                TokenExpires = newRefreshToken.Expires
+            };
+        }
+
         public async Task<User> RegisterUser(UserDto request)
         {
             CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
@@ -147,15 +174,34 @@ namespace RefreshToken.Services.AuthServices
             return refreshToken;
         }
 
-        private async void SetRefreshToken(AuthRefreshToken refreshToken, User user)
+        //this work if using sqllite
+        //private async void SetRefreshToken(AuthRefreshToken refreshToken, User user)
+        //{
+        //    var cookieOptions = new CookieOptions
+        //    {
+        //        HttpOnly = true,
+        //        Expires = refreshToken.Expires
+        //    };
+
+        //    _http?.HttpContext?.Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
+
+        //    user.RefreshToken = refreshToken.Token;
+        //    user.TokenCreated = refreshToken.Created;
+        //    user.TokenExpires = refreshToken.Expires;
+
+        //    await _context.SaveChangesAsync();
+        //}
+
+        private async Task SetRefreshToken(AuthRefreshToken refreshToken, User user)
         {
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Expires = refreshToken.Expires
+                Expires = refreshToken.Expires,
             };
 
-            _http?.HttpContext?.Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
+            _http?.HttpContext?.Response
+                .Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
 
             user.RefreshToken = refreshToken.Token;
             user.TokenCreated = refreshToken.Created;

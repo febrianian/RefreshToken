@@ -41,6 +41,21 @@ namespace RefreshToken.Controllers
             }
         }
 
+        [HttpPost("refresh-token")]
+        public async Task<ActionResult<string>> AuthRefreshToken()
+        {
+            var response = await _authServices.AuthRefreshToken();
+
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest(response.Message);
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult<string> Hallo()
         {

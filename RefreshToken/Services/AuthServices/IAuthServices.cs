@@ -7,5 +7,6 @@ namespace RefreshToken.Services.AuthServices
     {
         Task<User> RegisterUser(UserDto request);
         Task<ResponseApi> Login(UserDto request);
+        Task<ResponseApi> AuthRefreshToken();
     }
 }
