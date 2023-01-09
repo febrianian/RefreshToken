@@ -110,8 +110,9 @@ namespace RefreshToken.Services.AuthServices
                 new Claim(ClaimTypes.Role, user.Roles)
             };
 
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:TokenSecretKey").Value));
-            var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            var decodeBytes = Base64UrlEncoder.DecodeBytes(_configuration.GetSection("Jwt:Key").Value);
+            var key = new SymmetricSecurityKey(decodeBytes);
+            var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
             var jwtToken = new JwtSecurityToken
                             (
                                 claims: claims, 
