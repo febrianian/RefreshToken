@@ -13,6 +13,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using System.Data;
 
 namespace RefreshToken.Services.AuthServices
 {
@@ -100,21 +102,34 @@ namespace RefreshToken.Services.AuthServices
 
             return user;
         }
-
         private string GenerateToken (User user) 
         {
-            List<Claim> claims = new List<Claim>
+            var userRoles = from users in _context.User
+                            join detail in _context.RolesDetail on users.IdUser equals detail.IdUser
+                            join roles in _context.Roles on detail.IdRoles equals roles.IdRoles
+                            where users.UserName == user.UserName && detail.Status == "A"
+                            select new
+                            {
+                                roles.RoleName
+                            };
+
+            var authClaim = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.IdUser.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
             };
+            
+            foreach (var roles in userRoles.ToList())
+            {
+                authClaim.Add(new Claim(ClaimTypes.Role, roles.RoleName));
+            }
 
             var decodeBytes = Base64UrlEncoder.DecodeBytes(_configuration.GetSection("Jwt:Key").Value);
             var key = new SymmetricSecurityKey(decodeBytes);
             var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
             var jwtToken = new JwtSecurityToken
                             (
-                                claims: claims, 
+                                claims: authClaim, 
                                 expires: DateTime.Now.AddDays(1), 
                                 signingCredentials: credential
                             );
