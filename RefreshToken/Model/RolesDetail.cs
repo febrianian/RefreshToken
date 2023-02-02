@@ -8,9 +8,9 @@ namespace RefreshToken.Model
         [Key]
         public int IdRolesDetail { get; set; }
         [ForeignKey("User")]
-        public int UserId { get; set; }
+        public int IdUser { get; set; }
         [ForeignKey("Roles")]
-        public int RoleId { get; set; }
+        public int IdRoles { get; set; }
         public string Status { get; set; }
         public string UserCreated { get; set; }
         public DateTime DateCreated { get; set; }
