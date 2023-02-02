@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RefreshToken.Data;
 
@@ -11,9 +12,10 @@ using RefreshToken.Data;
 namespace RefreshToken.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230202060041_AddRoles")]
+    partial class AddRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,44 +56,6 @@ namespace RefreshToken.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("RefreshToken.Model.RolesDetail", b =>
-                {
-                    b.Property<int>("IdRolesDetail")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdRolesDetail"), 1L, 1);
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserCreated")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserModified")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("IdRolesDetail");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RolesDetail");
-                });
-
             modelBuilder.Entity("RefreshToken.Model.User", b =>
                 {
                     b.Property<int>("IdUser")
@@ -109,6 +73,9 @@ namespace RefreshToken.Migrations
                     b.Property<string>("RefreshToken")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Roles")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("TokenCreated")
                         .HasColumnType("datetime2");
 
@@ -121,25 +88,6 @@ namespace RefreshToken.Migrations
                     b.HasKey("IdUser");
 
                     b.ToTable("User");
-                });
-
-            modelBuilder.Entity("RefreshToken.Model.RolesDetail", b =>
-                {
-                    b.HasOne("RefreshToken.Model.Roles", "Roles")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RefreshToken.Model.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Roles");
-
-                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

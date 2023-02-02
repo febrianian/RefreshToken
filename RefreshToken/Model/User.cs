@@ -12,6 +12,5 @@ namespace RefreshToken.Model
         public string RefreshToken { get; set; }
         public DateTime TokenCreated { get; set; }
         public DateTime TokenExpires { get; set; }
-        public string Roles { get; set; }
     }
 }

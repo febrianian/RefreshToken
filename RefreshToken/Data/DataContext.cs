@@ -11,5 +11,7 @@ namespace RefreshToken.Data
         }
 
         public DbSet<User> User { get; set; }
+        public DbSet<Roles> Roles { get; set; }
+        public DbSet<RolesDetail> RolesDetail { get; set; }
     }
 }

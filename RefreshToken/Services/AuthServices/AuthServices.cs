@@ -107,7 +107,6 @@ namespace RefreshToken.Services.AuthServices
             {
                 new Claim(ClaimTypes.NameIdentifier, user.IdUser.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Role, user.Roles)
             };
 
             var decodeBytes = Base64UrlEncoder.DecodeBytes(_configuration.GetSection("Jwt:Key").Value);
