@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RefreshToken.Data;
-using RefreshToken.Dto;
+using RefreshToken.Dto.RolesDto;
 using RefreshToken.Model;
 using RefreshToken.Services;
 using System.Data;

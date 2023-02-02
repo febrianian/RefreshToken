@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace RefreshToken.Dto
+namespace RefreshToken.Dto.RolesDto
 {
     public class IndexRoles
     {
